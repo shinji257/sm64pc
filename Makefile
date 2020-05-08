@@ -47,8 +47,10 @@ ifeq ($(TARGET_N64),0)
   GRUCODE := f3dex2e
   WINDOWS_BUILD := 0
   ifeq ($(TARGET_WEB),0)
-    ifeq ($(OS),Windows_NT)
-      WINDOWS_BUILD := 1
+    ifeq ($(TARGET_SWITCH),0)
+      ifeq ($(OS),Windows_NT)
+        WINDOWS_BUILD := 1
+      endif
     endif
   endif
 
@@ -451,7 +453,7 @@ APP_ICON := nx_icon.jpg
 
 AS := aarch64-none-elf-as
 CC := aarch64-none-elf-gcc
-CXX := WEWLAD
+CXX := aarch64-none-elf-g++
 LD := aarch64-none-elf-g++
 CPP := aarch64-none-elf-cpp -P
 OBJDUMP := aarch64-none-elf-objdump

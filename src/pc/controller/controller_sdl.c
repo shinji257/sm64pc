@@ -23,6 +23,18 @@ static bool init_ok;
 static SDL_GameController *sdl_cntrl;
 
 static void controller_sdl_init(void) {
+#ifdef __SWITCH__
+    // swap A, B and X, Y to correct positions
+    SDL_GameControllerAddMapping(
+        "53776974636820436F6E74726F6C6C65,Switch Controller,"
+        "a:b0,b:b1,back:b11,"
+        "dpdown:b15,dpleft:b12,dpright:b14,dpup:b13,"
+        "leftshoulder:b6,leftstick:b4,lefttrigger:b8,leftx:a0,lefty:a1,"
+        "rightshoulder:b7,rightstick:b5,righttrigger:b9,rightx:a2,righty:a3,"
+        "start:b10,x:b2,y:b3"
+    );
+#endif
+
     if (SDL_Init(SDL_INIT_GAMECONTROLLER | SDL_INIT_EVENTS) != 0) {
         fprintf(stderr, "SDL init error: %s\n", SDL_GetError());
         return;

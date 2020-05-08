@@ -127,6 +127,26 @@ PATH=/mingw32/bin:/mingw64/bin:$PATH make
 
 The game can be compiled for web browsers that support WebGL using [Emscripten](https://github.com/emscripten-core). To do so, install [emsdk](https://github.com/emscripten-core/emsdk) and run `make TARGET_WEB=1`.
 
+### For Nintendo Switch
+
+#### 1. Build the game for your native platform.
+See above for directions. Needed to get the tools required to build the game. If you're using MSYS2 on Windows, switch to the MINGW64/32 environment and build it there.
+
+You might need to build and install [libaudiofile](https://github.com/mpruett/audiofile). Just install automake from pacman and `./autogen.sh && make && make install`.
+
+#### 2. Obtain the toolchain and dependencies.
+You will need the latest version of devkitA64 and some Switch portlibs. You can install the dependencies using dkp-pacman:
+```(dkp-)pacman -S devkitpro-pkgbuild-helpers libnx switch-tools switch-mesa switch-libdrm_nouveau switch-sdl2```
+
+### 3. Build.
+```
+source $DEVKITPRO/switchvars.sh
+make -j4 TARGET_N64=0 TARGET_SWITCH=1
+```
+
+### 4. Run.
+The NRO is in `build/{lang}_nx`. Rename it to `sm64.nro` and copy it to `sdmc:/switch/sm64`. Run using hbmenu.
+
 ## Optional enhancements
 
 On the `./enhancements` folder, you'll find several .patch files, which can be applied in the following manner:

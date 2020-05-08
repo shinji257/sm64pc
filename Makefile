@@ -136,10 +136,10 @@ endif
 
 ifeq ($(NON_MATCHING),1)
   VERSION_CFLAGS := $(VERSION_CFLAGS) -DNON_MATCHING -DAVOID_UB
-    ifeq ($(TARGET_RPI),1) # Define RPi to change SDL2 title & GLES2 hints
-      # Other platforms will use GLES2 eventually, not only RPis.
-      VERSION_CFLAGS += -DUSE_GLES
-    endif
+  ifeq ($(TARGET_RPI),1) # Define RPi to change SDL2 title & GLES2 hints
+    # Other platforms will use GLES2 eventually, not only RPis.
+    VERSION_CFLAGS += -DUSE_GLES
+  endif
   VERSION_ASFLAGS := --defsym AVOID_UB=1
   COMPARE := 0
 endif
@@ -514,7 +514,7 @@ PYTHON := python3
 
 ARCH := -march=armv8-a+crc+crypto -mtune=cortex-a57 -mtp=soft -ftls-model=local-exec -fPIC
 CC_CHECK := $(CC) -fsyntax-only -fsigned-char $(ARCH) $(INCLUDE_CFLAGS) -Wall -Wextra -Wno-format-security $(VERSION_CFLAGS) $(GRUCODE_CFLAGS) `sdl2-config --cflags` -D__SWITCH__=1
-CFLAGS := $(ARCH) $(OPT_FLAGS) $(INCLUDE_CFLAGS) $(VERSION_CFLAGS) $(GRUCODE_CFLAGS) -fno-strict-aliasing -fwrapv `sdl2-config --cflags` -D__SWITCH__=1
+CFLAGS := $(ARCH) $(OPT_FLAGS) $(INCLUDE_CFLAGS) $(VERSION_CFLAGS) $(GRUCODE_CFLAGS) -fno-strict-aliasing -fwrapv `sdl2-config --cflags` -D__SWITCH__=1 -DUSE_GLES=1
 ASFLAGS := -march=armv8-a+crc+crypto -I include -I $(BUILD_DIR) $(VERSION_ASFLAGS)
 LDFLAGS := -specs=$(LIBNX)/switch.specs $(ARCH) -no-pie -L$(LIBNX)/lib -L$(PORTLIBS)/lib -lSDL2 -lEGL -lGLESv2 -lglapi -ldrm_nouveau -lnx -lm -lstdc++
 

@@ -19,6 +19,10 @@ COMPARE ?= 1
 NON_MATCHING ?= 0
 # Build for the N64 (turn this off for ports)
 TARGET_N64 ?= 0
+# Build and optimize for Raspberry Pi(s)
+TARGET_RPI ?= 0
+# Build for Nintendo Switch
+TARGET_SWITCH ?= 0
 # Compiler to use (ido or gcc)
 COMPILER ?= ido
 
@@ -171,12 +175,12 @@ endif
 BUILD_DIR_BASE := build
 ifeq ($(TARGET_N64),1)
   BUILD_DIR := $(BUILD_DIR_BASE)/$(VERSION)
-else
-ifeq ($(TARGET_WEB),1)
+else ifeq ($(TARGET_WEB),1)
   BUILD_DIR := $(BUILD_DIR_BASE)/$(VERSION)_web
+else ifeq ($(TARGET_SWITCH),1)
+  BUILD_DIR := $(BUILD_DIR_BASE)/$(VERSION)_nx
 else
   BUILD_DIR := $(BUILD_DIR_BASE)/$(VERSION)_pc
-endif
 endif
 
 LIBULTRA := $(BUILD_DIR)/libultra.a
@@ -431,6 +435,36 @@ else
   CC_CHECK += $(BITS)
 endif
 
+else ifeq ($(TARGET_SWITCH), 1)
+
+ifeq ($(strip $(DEVKITPRO)),)
+$(error "Please set DEVKITPRO in your environment. export DEVKITPRO=<path to>/devkitpro")
+endif
+
+PORTLIBS ?= $(DEVKITPRO)/portlibs/switch
+LIBNX ?= $(DEVKITPRO)/libnx
+
+APP_TITLE := Super Mario 64
+APP_AUTHOR := Nintendo, n64decomp team, vrmiguel, fgsfds
+APP_VERSION := 1_$(VERSION)
+APP_ICON := nx_icon.jpg
+
+AS := aarch64-none-elf-as
+CC := aarch64-none-elf-gcc
+CXX := WEWLAD
+LD := aarch64-none-elf-g++
+CPP := aarch64-none-elf-cpp -P
+OBJDUMP := aarch64-none-elf-objdump
+OBJCOPY := aarch64-none-elf-objcopy
+STRIP := aarch64-none-elf-strip
+PYTHON := python3
+
+ARCH := -march=armv8-a+crc+crypto -mtune=cortex-a57 -mtp=soft -ftls-model=local-exec -fPIC
+CC_CHECK := $(CC) -fsyntax-only -fsigned-char $(ARCH) $(INCLUDE_CFLAGS) -Wall -Wextra -Wno-format-security $(VERSION_CFLAGS) $(GRUCODE_CFLAGS) `sdl2-config --cflags` -D__SWITCH__=1
+CFLAGS := $(ARCH) $(OPT_FLAGS) $(INCLUDE_CFLAGS) $(VERSION_CFLAGS) $(GRUCODE_CFLAGS) -fno-strict-aliasing -fwrapv `sdl2-config --cflags` -D__SWITCH__=1
+ASFLAGS := -march=armv8-a+crc+crypto -I include -I $(BUILD_DIR) $(VERSION_ASFLAGS)
+LDFLAGS := -specs=$(LIBNX)/switch.specs $(ARCH) -no-pie -L$(LIBNX)/lib -L$(PORTLIBS)/lib -lSDL2 -lEGL -lGLESv2 -lglapi -ldrm_nouveau -lnx -lm -lstdc++
+
 else # TARGET_N64
 
 AS := as
@@ -524,6 +558,8 @@ all: $(ROM)
 ifeq ($(COMPARE),1)
 	@$(SHA1SUM) -c $(TARGET).sha1 || (echo 'The build succeeded, but did not match the official ROM. This is expected if you are making changes to the game.\nTo silence this message, use "make COMPARE=0"'. && false)
 endif
+else ifeq ($(TARGET_SWITCH),1)
+all: $(EXE).nro
 else
 all: $(EXE)
 endif
@@ -826,6 +862,23 @@ $(BUILD_DIR)/$(TARGET).objdump: $(ELF)
 else
 $(EXE): $(O_FILES) $(MIO0_FILES:.mio0=.o) $(SOUND_OBJ_FILES) $(ULTRA_O_FILES) $(GODDARD_O_FILES)
 	$(LD) -L $(BUILD_DIR) -o $@ $(O_FILES) $(SOUND_OBJ_FILES) $(ULTRA_O_FILES) $(GODDARD_O_FILES) $(LDFLAGS)
+
+ifeq ($(TARGET_SWITCH), 1)
+
+%.nro: %.stripped %.nacp
+	@elf2nro $< $@ --nacp=$*.nacp --icon=$(APP_ICON)
+	@echo built ... $(notdir $@)
+
+%.nacp:
+	@nacptool --create "$(APP_TITLE)" "$(APP_AUTHOR)" "$(APP_VERSION)" $@ $(NACPFLAGS)
+	@echo built ... $(notdir $@)
+
+%.stripped: %
+	@$(STRIP) -o $@ $<
+	@echo stripped ... $(notdir $<)
+
+endif
+
 endif
 
 

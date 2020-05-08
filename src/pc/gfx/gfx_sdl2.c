@@ -16,6 +16,12 @@
 #include <SDL2/SDL_opengles2.h>
 #endif
 
+#ifdef __SWITCH__
+// can't include <switch.h> or even <switch/services/applet.h> because
+// the basic libnx types have the same names as some of the types in this
+extern int appletGetOperationMode(void);
+#endif
+
 #include "gfx_window_manager_api.h"
 #include "gfx_screen_config.h"
 #include "../configfile.h"
@@ -109,12 +115,26 @@ static void gfx_sdl_init(void) {
     //SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
     //SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
     
+    int width, height;
+    #ifdef __SWITCH__
+    if (appletGetOperationMode() == 1) {
+      width = 1920;
+      height = 1080;
+    } else {
+      width = 1280;
+      height = 720;
+    }
+    #else
+    width = DESIRED_SCREEN_WIDTH;
+    height = DESIRED_SCREEN_HEIGHT;
+    #endif
+    
     #ifndef USE_GLES
     wnd = SDL_CreateWindow("Super Mario 64 PC port (OpenGL)", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-            DESIRED_SCREEN_WIDTH, DESIRED_SCREEN_HEIGHT, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
+            width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
     #else
     wnd = SDL_CreateWindow("Super Mario 64 PC port (OpenGL_ES2)", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-            DESIRED_SCREEN_WIDTH, DESIRED_SCREEN_HEIGHT, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
+            width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
     #endif
   
     gfx_sdl_set_fullscreen(configFullscreen);

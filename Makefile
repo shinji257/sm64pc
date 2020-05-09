@@ -170,6 +170,8 @@ BUILD_DIR_BASE := build
 
 ifeq ($(TARGET_WEB),1)
   BUILD_DIR := $(BUILD_DIR_BASE)/$(VERSION)_web
+else ifeq ($(TARGET_SWITCH),1)
+  BUILD_DIR := $(BUILD_DIR_BASE)/$(VERSION)_nx
 else
   BUILD_DIR := $(BUILD_DIR_BASE)/$(VERSION)_pc
 endif

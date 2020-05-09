@@ -58,7 +58,11 @@ static void controller_sdl_read(OSContPad *pad) {
         SDL_SetRelativeMouseMode(SDL_FALSE);
 
     SDL_GameControllerUpdate();
-    int mbuttons = SDL_GetRelativeMouseState(&mouse_x, &mouse_y);
+    u32 mbuttons = SDL_GetRelativeMouseState(&mouse_x, &mouse_y);
+
+    if (mbuttons & SDL_BUTTON_LMASK) pad->button |= B_BUTTON;
+    if (mbuttons & SDL_BUTTON_RMASK) pad->button |= A_BUTTON;
+    if (mbuttons & SDL_BUTTON_MMASK) pad->button |= Z_TRIG;
 
     if (sdl_cntrl != NULL && !SDL_GameControllerGetAttached(sdl_cntrl)) {
         SDL_GameControllerClose(sdl_cntrl);
@@ -88,10 +92,6 @@ static void controller_sdl_read(OSContPad *pad) {
     if (SDL_GameControllerGetButton(sdl_cntrl, SDL_CONTROLLER_BUTTON_DPAD_RIGHT)) pad->button |= R_CBUTTONS;
     if (SDL_GameControllerGetButton(sdl_cntrl, SDL_CONTROLLER_BUTTON_DPAD_UP)) pad->button |= U_CBUTTONS;
     if (SDL_GameControllerGetButton(sdl_cntrl, SDL_CONTROLLER_BUTTON_DPAD_DOWN)) pad->button |= D_CBUTTONS;
-
-    if (mbuttons & SDL_BUTTON_LMASK) pad->button |= B_BUTTON;
-    if (mbuttons & SDL_BUTTON_RMASK) pad->button |= A_BUTTON;
-    if (mbuttons & SDL_BUTTON_MMASK) pad->button |= Z_TRIG;
 
     int16_t leftx = SDL_GameControllerGetAxis(sdl_cntrl, SDL_CONTROLLER_AXIS_LEFTX);
     int16_t lefty = SDL_GameControllerGetAxis(sdl_cntrl, SDL_CONTROLLER_AXIS_LEFTY);

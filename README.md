@@ -141,7 +141,7 @@ You will need the latest version of devkitA64 and some Switch portlibs. You can 
 ### 3. Build.
 ```
 source $DEVKITPRO/switchvars.sh
-make -j4 TARGET_N64=0 TARGET_SWITCH=1
+make -j4 TARGET_SWITCH=1
 ```
 
 ### 4. Run.

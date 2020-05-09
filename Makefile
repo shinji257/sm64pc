@@ -458,7 +458,7 @@ PORTLIBS ?= $(DEVKITPRO)/portlibs/switch
 LIBNX ?= $(DEVKITPRO)/libnx
 
 APP_TITLE := Super Mario 64
-APP_AUTHOR := Nintendo, n64decomp team, vrmiguel, fgsfds
+APP_AUTHOR := Nintendo, n64decomp team, sm64pc team, fgsfds
 APP_VERSION := 1_$(VERSION)
 APP_ICON := nx_icon.jpg
 

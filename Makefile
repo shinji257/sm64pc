@@ -54,6 +54,13 @@ ifeq ($(TARGET_N64),0)
     endif
   endif
 
+ifeq ($(TARGET_SWITCH),1)
+  # someone's bound to forget to explicitly define these
+  BITS :=
+  TARGET_BITS := 0
+  TARGET_ARCH := armv8-a+crc+crypto
+endif
+
 # Release
 
 ifeq ($(VERSION),jp)

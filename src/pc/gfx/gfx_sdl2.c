@@ -24,6 +24,7 @@ extern int appletGetOperationMode(void);
 
 #include "gfx_window_manager_api.h"
 #include "gfx_screen_config.h"
+#include "../configfile.h"
 
 #include "src/pc/controller/controller_keyboard.h"
 
@@ -81,6 +82,18 @@ const SDL_Scancode scancode_rmapping_nonextended[][2] = {
     {SDL_SCANCODE_KP_MULTIPLY, SDL_SCANCODE_PRINTSCREEN}
 };
 
+static void gfx_sdl_set_fullscreen(bool fullscreen) {
+    if (fullscreen) {
+        SDL_SetWindowFullscreen(wnd, SDL_WINDOW_FULLSCREEN_DESKTOP);
+        SDL_ShowCursor(SDL_DISABLE);
+    } else {
+        SDL_SetWindowFullscreen(wnd, 0);
+        SDL_ShowCursor(SDL_ENABLE);
+    }
+    configFullscreen = fullscreen;
+}
+
+
 static void gfx_sdl_init(void) {
     SDL_Init(SDL_INIT_VIDEO);
     
@@ -90,10 +103,6 @@ static void gfx_sdl_init(void) {
     //SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
     //SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
     
-<<<<<<< HEAD
-    wnd = SDL_CreateWindow("Super Mario 64 - testing", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-            DESIRED_SCREEN_WIDTH, DESIRED_SCREEN_HEIGHT, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
-=======
     int width, height;
     #ifdef __SWITCH__
     if (appletGetOperationMode() == 1) {

@@ -22,6 +22,8 @@ TARGET_N64 = 0
 
 # Build and optimize for Raspberry Pi(s)
 TARGET_RPI ?= 0
+# Build for Nintendo Switch
+TARGET_SWITCH ?= 0
 # Compiler to use (ido or gcc)
 COMPILER ?= ido
 
@@ -49,8 +51,10 @@ GRUCODE := f3dex2e
 WINDOWS_BUILD := 0
 
 ifeq ($(TARGET_WEB),0)
+ifeq ($(TARGET_SWITCH),0)
 ifeq ($(OS),Windows_NT)
 WINDOWS_BUILD := 1
+endif
 endif
 endif
 
@@ -134,15 +138,15 @@ endif
 VERSION_CFLAGS := $(VERSION_CFLAGS) -DNON_MATCHING -DAVOID_UB
 
 ifeq ($(TARGET_RPI),1) # Define RPi to change SDL2 title & GLES2 hints
-      VERSION_CFLAGS += -DUSE_GLES
+  VERSION_CFLAGS += -DUSE_GLES
+else ifeq ($(TARGET_SWITCH),1)
+  VERSION_CFLAGS += -DUSE_GLES -DTARGET_SWITCH
+else ifeq ($(TARGET_WEB),1)
+  VERSION_CFLAGS := $(VERSION_CFLAGS) -DTARGET_WEB
 endif
 
 VERSION_ASFLAGS := --defsym AVOID_UB=1
 COMPARE := 0
-
-ifeq ($(TARGET_WEB),1)
-  VERSION_CFLAGS := $(VERSION_CFLAGS) -DTARGET_WEB
-endif
 
 ################### Universal Dependencies ###################
 
@@ -178,6 +182,8 @@ BUILD_DIR_BASE := build
 
 ifeq ($(TARGET_WEB),1)
   BUILD_DIR := $(BUILD_DIR_BASE)/$(VERSION)_web
+else ifeq ($(TARGET_SWITCH),1)
+  BUILD_DIR := $(BUILD_DIR_BASE)/$(VERSION)_nx
 else
   BUILD_DIR := $(BUILD_DIR_BASE)/$(VERSION)_pc
 endif
@@ -409,7 +415,21 @@ ENDIAN_BITWIDTH := $(BUILD_DIR)/endian-and-bitwidth
 
 # Huge deleted N64 section was here
 
-AS := as
+ifeq ($(TARGET_SWITCH),1)
+  ifeq ($(strip $(DEVKITPRO)),)
+    $(error "Please set DEVKITPRO in your environment. export DEVKITPRO=<path to>/devkitpro")
+  endif
+  PORTLIBS ?= $(DEVKITPRO)/portlibs/switch
+  LIBNX ?= $(DEVKITPRO)/libnx
+  CROSS ?= aarch64-none-elf-
+  NXARCH := -march=armv8-a+crc+crypto -mtune=cortex-a57 -mtp=soft -fPIC -ftls-model=local-exec
+  APP_TITLE := Super Mario 64
+  APP_AUTHOR := Nintendo, n64decomp team, sm64pc team
+  APP_VERSION := 1_master_$(VERSION)
+  APP_ICON := nx_icon.jpg
+endif
+
+AS := $(CROSS)as
 
 ifneq ($(TARGET_WEB),1) # As in, not-web PC port
   CC := $(CROSS)gcc
@@ -424,9 +444,10 @@ else
   LD := $(CC)
 endif
 
-CPP := cpp -P
-OBJDUMP := objdump
-OBJCOPY := objcopy
+CPP := $(CROSS)cpp -P
+OBJDUMP := $(CROSS)objdump
+OBJCOPY := $(CROSS)objcopy
+STRIP := $(CROSS)strip
 PYTHON := python3
 
 ifeq ($(WINDOWS_BUILD),1)
@@ -436,6 +457,10 @@ CFLAGS := $(OPT_FLAGS) $(INCLUDE_CFLAGS) $(VERSION_CFLAGS) $(GRUCODE_CFLAGS) -fn
 else ifeq ($(TARGET_WEB),1)
 CC_CHECK := $(CC) -fsyntax-only -fsigned-char $(INCLUDE_CFLAGS) -Wall -Wextra -Wno-format-security $(VERSION_CFLAGS) $(GRUCODE_CFLAGS) -s USE_SDL=2
 CFLAGS := $(OPT_FLAGS) $(INCLUDE_CFLAGS) $(VERSION_CFLAGS) $(GRUCODE_CFLAGS) -fno-strict-aliasing -fwrapv -s USE_SDL=2
+
+else ifeq ($(TARGET_SWITCH),1)
+CC_CHECK := $(CC) $(NXARCH) -fsyntax-only -fsigned-char $(INCLUDE_CFLAGS) -Wall -Wextra -Wno-format-security $(VERSION_CFLAGS) $(GRUCODE_CFLAGS) `sdl2-config --cflags` -D__SWITCH__=1
+CFLAGS := $(NXARCH) $(OPT_FLAGS) $(INCLUDE_CFLAGS) $(VERSION_CFLAGS) $(GRUCODE_CFLAGS) -fno-strict-aliasing -ftls-model=local-exec -fPIC -fwrapv `sdl2-config --cflags` -D__SWITCH__=1
 
 # Linux / Other builds below
 else
@@ -453,20 +478,20 @@ ASFLAGS := -I include -I $(BUILD_DIR) $(VERSION_ASFLAGS)
 
 ifeq ($(TARGET_WEB),1)
 LDFLAGS := -lm -lGL -lSDL2 -no-pie -s TOTAL_MEMORY=20MB -g4 --source-map-base http://localhost:8080/ -s "EXTRA_EXPORTED_RUNTIME_METHODS=['callMain']"
-else
 
-ifeq ($(WINDOWS_BUILD),1)
+else ifeq ($(WINDOWS_BUILD),1)
 LDFLAGS := $(BITS) -march=$(TARGET_ARCH) -Llib -lpthread -lglew32 `$(CROSS)sdl2-config --static-libs` -lm -lglu32 -lsetupapi -ldinput8 -luser32 -lgdi32 -limm32 -lole32 -loleaut32 -lshell32 -lwinmm -lversion -luuid -lopengl32 -no-pie -static
-else
+
+else ifeq ($(TARGET_RPI),1)
+LDFLAGS := $(OPT_FLAGS) -lm -lGLESv2 `$(CROSS)sdl2-config --libs` -no-pie
+
+else ifeq ($(TARGET_SWITCH),1)
+LDFLAGS := -specs=$(LIBNX)/switch.specs $(NXARCH) $(OPT_FLAGS) -no-pie -L$(LIBNX)/lib -L$(PORTLIBS)/lib -lSDL2 -lEGL -lGLESv2 -lglapi -ldrm_nouveau -lstdc++ -lnx -lm
 
 # Linux / Other builds below
-ifeq ($(TARGET_RPI),1)
-LDFLAGS := $(OPT_FLAGS) -lm -lGLESv2 `$(CROSS)sdl2-config --libs` -no-pie
 else
 LDFLAGS := $(BITS) -march=$(TARGET_ARCH) -lm -lGL `$(CROSS)sdl2-config --libs` -no-pie -lpthread
 endif
-endif
-endif #Added for Pi ifeq
 
 
 # Prevent a crash with -sopt
@@ -499,6 +524,9 @@ SHA1SUM = sha1sum
 ######################## Targets #############################
 
 all: $(EXE)
+ifeq ($(TARGET_SWITCH),1)
+all: $(EXE).nro
+endif
 
 clean:
 	$(RM) -r $(BUILD_DIR_BASE)
@@ -747,6 +775,23 @@ $(BUILD_DIR)/%.o: %.s
 
 $(EXE): $(O_FILES) $(MIO0_FILES:.mio0=.o) $(SOUND_OBJ_FILES) $(ULTRA_O_FILES) $(GODDARD_O_FILES)
 	$(LD) -L $(BUILD_DIR) -o $@ $(O_FILES) $(SOUND_OBJ_FILES) $(ULTRA_O_FILES) $(GODDARD_O_FILES) $(LDFLAGS)
+
+ifeq ($(TARGET_SWITCH), 1)
+
+# add `--icon=$(APP_ICON)` to this when we get a suitable icon
+%.nro: %.stripped %.nacp
+	@elf2nro $< $@ --nacp=$*.nacp
+	@echo built ... $(notdir $@)
+
+%.nacp:
+	@nacptool --create "$(APP_TITLE)" "$(APP_AUTHOR)" "$(APP_VERSION)" $@ $(NACPFLAGS)
+	@echo built ... $(notdir $@)
+
+%.stripped: %
+	@$(STRIP) -o $@ $<
+	@echo stripped ... $(notdir $<)
+
+endif
 
 .PHONY: all clean distclean default diff test load libultra
 .PRECIOUS: $(BUILD_DIR)/bin/%.elf $(SOUND_BIN_DIR)/%.ctl $(SOUND_BIN_DIR)/%.tbl $(SOUND_SAMPLE_TABLES) $(SOUND_BIN_DIR)/%.s $(BUILD_DIR)/%

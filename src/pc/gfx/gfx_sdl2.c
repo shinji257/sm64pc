@@ -125,25 +125,24 @@ static void gfx_sdl_init(void) {
     Uint32 window_flags = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE;
     int width, height;
 
+    #ifdef __SWITCH__
+    // if docked, set 1920x1080
+    if (appletGetOperationMode() == 1) {
+        width = 1920;
+        height = 1080;
+    } else {
+        width = 1280;
+        height = 720;
+    }
+    #else
+    width = DESIRED_SCREEN_WIDTH;
+    height = DESIRED_SCREEN_HEIGHT;
+    #endif
+
     if (configFullscreen) {
-        width = 0;
-        height = 0;
         window_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
         SDL_ShowCursor(SDL_DISABLE);
     } else {
-        #ifdef __SWITCH__
-        // if docked, set 1920x1080
-        if (appletGetOperationMode() == 1) {
-            width = 1920;
-            height = 1080;
-        } else {
-            width = 1280;
-            height = 720;
-        }
-        #else
-        width = DESIRED_SCREEN_WIDTH;
-        height = DESIRED_SCREEN_HEIGHT;
-        #endif
         SDL_ShowCursor(SDL_ENABLE);
     }
 

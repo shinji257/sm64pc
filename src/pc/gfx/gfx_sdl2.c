@@ -16,6 +16,12 @@
 #include <SDL2/SDL_opengles2.h>
 #endif
 
+#ifdef TARGET_SWITCH
+// can't include <switch.h> or even <switch/services/applet.h> because
+// the basic libnx types have the same names as some of the types in this
+extern int appletGetOperationMode(void);
+#endif
+
 #include "gfx_window_manager_api.h"
 #include "gfx_screen_config.h"
 #include "../configfile.h"
@@ -125,8 +131,19 @@ static void gfx_sdl_init(void) {
         window_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
         SDL_ShowCursor(SDL_DISABLE);
     } else {
+        #ifdef __SWITCH__
+        // if docked, set 1920x1080
+        if (appletGetOperationMode() == 1) {
+            width = 1920;
+            height = 1080;
+        } else {
+            width = 1280;
+            height = 720;
+        }
+        #else
         width = DESIRED_SCREEN_WIDTH;
         height = DESIRED_SCREEN_HEIGHT;
+        #endif
         SDL_ShowCursor(SDL_ENABLE);
     }
 

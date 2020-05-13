@@ -23,7 +23,7 @@ TARGET_N64 = 0
 # Build and optimize for Raspberry Pi(s)
 TARGET_RPI ?= 0
 # Build for Nintendo Switch
-TARGET_SWITCH ?= 0
+TARGET_SWITCH ?= 1
 # Compiler to use (ido or gcc)
 COMPILER ?= ido
 
@@ -472,6 +472,9 @@ endif
 ifeq ($(BETTERCAMERA),1)
 CC_CHECK += -DBETTERCAMERA -DEXT_OPTIONS_MENU
 CFLAGS += -DBETTERCAMERA -DEXT_OPTIONS_MENU
+else
+CC_CHECK += -DEXT_OPTIONS_MENU
+CFLAGS += -DEXT_OPTIONS_MENU
 endif
 
 ASFLAGS := -I include -I $(BUILD_DIR) $(VERSION_ASFLAGS)

@@ -429,6 +429,7 @@ ifeq ($(TARGET_SWITCH),1)
   APP_AUTHOR := Nintendo, n64decomp team, sm64pc team
   APP_VERSION := 1_master_$(VERSION)
   APP_ICON := nx_icon.jpg
+  INCLUDE_CFLAGS += -isystem$(LIBNX)/include -I$(PORTLIBS)/include
 endif
 
 AS := $(CROSS)as

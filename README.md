@@ -14,4 +14,6 @@ Run `./extract-assets.py --clean && make clean` or `make distclean` to remove RO
 ## Building
 For building instructions, please refer to the [wiki](https://github.com/sm64pc/sm64pc/wiki).
 
+For Nintendo Switch building instructions, please refer to [this page](https://github.com/fgsfdsfgs/sm64pc/wiki/Compiling-for-Nintendo-Switch).
+
 **Do NOT attempt to compile Windows executables with `WINDOWS_BUILD=1` under Linux or WSL. It will NOT work. Follow the guide on the wiki.**

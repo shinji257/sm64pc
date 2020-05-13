@@ -1035,7 +1035,7 @@ s32 play_mode_paused(void) {
     if (gPauseScreenMode == 3) { // We should only be getting "int 3" to here
         initiate_warp(LEVEL_CASTLE, 1, 0x1F, 0);
         fade_into_special_warp(0, 0);
-        #ifdef __SWITCH__
+        #ifdef TARGET_SWITCH
         SDL_Quit();
         #endif
         exit(0); // deinit and config save are in an atexit() handler

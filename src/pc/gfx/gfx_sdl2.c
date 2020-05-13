@@ -125,7 +125,7 @@ static void gfx_sdl_init(void) {
     Uint32 window_flags = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE;
     int width, height;
 
-    #ifdef __SWITCH__
+    #ifdef TARGET_SWITCH
     // if docked, set 1920x1080
     if (appletGetOperationMode() == 1) {
         width = 1920;

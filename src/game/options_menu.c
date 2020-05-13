@@ -118,6 +118,7 @@ struct SubMenu {
 
 /* submenu option lists */
 
+#ifdef BETTERCAMERA
 static struct Option optsCamera[] = {
     { .type = OPT_TOGGLE, .label = optsCameraStr[6], .bval = &configEnableCamera,                                          },
     { .type = OPT_TOGGLE, .label = optsCameraStr[7], .bval = &configCameraMouse,                                           },
@@ -128,6 +129,7 @@ static struct Option optsCamera[] = {
     { .type = OPT_SCROLL, .label = optsCameraStr[4], .uval = &configCameraAggr,  .scrMin = 0,  .scrMax = 100, .scrStep = 1 },
     { .type = OPT_SCROLL, .label = optsCameraStr[5], .uval = &configCameraPan,   .scrMin = 0,  .scrMax = 100, .scrStep = 1 },
 };
+#endif
 
 static struct Option optsControls[] = {
     { .type = OPT_BIND, .label = bindStr[2],  .uval = configKeyA,          },
@@ -148,11 +150,13 @@ static struct Option optsControls[] = {
 
 /* submenu definitions */
 
+#ifdef BETTERCAMERA
 static struct SubMenu menuCamera = {
     .label = menuStr[4],
     .opts = optsCamera,
     .numOpts = sizeof(optsCamera) / sizeof(optsCamera[0]),
 };
+#endif
 
 static struct SubMenu menuControls = {
     .label = menuStr[5],
@@ -163,7 +167,9 @@ static struct SubMenu menuControls = {
 /* main options menu definition */
 
 static struct Option optsMain[] = {
+	#ifdef BETTERCAMERA
     { .type = OPT_SUBMENU, .label = menuStr[4], .nextMenu = &menuCamera, },
+	#endif
     { .type = OPT_SUBMENU, .label = menuStr[5], .nextMenu = &menuControls, },
 };
 
@@ -360,7 +366,9 @@ void optmenu_toggle(void) {
         play_sound(SOUND_MENU_MARIO_CASTLE_WARP2, gDefaultSoundArgs);
         #endif
         optmenu_open = 0;
+		#ifdef BETTERCAMERA
         newcam_init_settings(); // load bettercam settings from config vars
+		#endif
         controller_reconfigure(); // rebind using new config values
         configfile_save(CONFIG_FILE);
     }

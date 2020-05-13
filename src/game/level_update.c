@@ -1042,6 +1042,9 @@ s32 play_mode_paused(void) {
             fade_into_special_warp(0, 0);
 
 	    //configfile_save(CONFIG_FILE);
+		#ifdef __SWITCH__
+			SDL_Quit();
+		#endif
             exit(0);  // Appears to automatically save config on exit!
      }
 

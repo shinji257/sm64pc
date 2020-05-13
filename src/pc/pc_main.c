@@ -124,13 +124,28 @@ static void on_anim_frame(double time) {
 }
 #endif
 
+#ifdef TARGET_SWITCH
+// switch does not like atexit() but still requires us to manually
+// deinit the opengl stuff, so we gotta use this to make it not crash
+void userAppExit(void) {
+    game_shutdown();
+}
+#endif
+
+// need this shit because including stdlib.h breaks shit sometimes
+void game_exit(void) {
+    exit(0);
+}
+
 void main_func(void) {
     static u64 pool[0x165000/8 / 4 * sizeof(void *)];
     main_pool_init(pool, pool + sizeof(pool) / sizeof(pool[0]));
     gEffectsMemoryPool = mem_pool_init(0x4000, MEMORY_POOL_LEFT);
 
     configfile_load(CONFIG_FILE);
+#ifndef TARGET_SWITCH
     atexit(game_shutdown);
+#endif
 
 #ifdef TARGET_WEB
     emscripten_set_main_loop(em_main_loop, 0, 0);

@@ -29,6 +29,8 @@ COMPILER ?= ido
 
 # Disable better camera by default
 BETTERCAMERA ?= 0
+# Enable extended options menu by default
+EXT_OPTIONS_MENU ?= 1
 
 # Build for Emscripten/WebGL
 TARGET_WEB ?= 0
@@ -468,13 +470,16 @@ CC_CHECK := $(CC) -fsyntax-only -fsigned-char $(INCLUDE_CFLAGS) -Wall -Wextra -W
 CFLAGS := $(OPT_FLAGS) $(INCLUDE_CFLAGS) $(VERSION_CFLAGS) $(GRUCODE_CFLAGS) -fno-strict-aliasing -fwrapv `$(CROSS)sdl2-config --cflags`
 endif
 
-# Check for better camera option
+# Check for enhancement options
+
 ifeq ($(BETTERCAMERA),1)
-CC_CHECK += -DBETTERCAMERA -DEXT_OPTIONS_MENU
-CFLAGS += -DBETTERCAMERA -DEXT_OPTIONS_MENU
-else
-CC_CHECK += -DEXT_OPTIONS_MENU
-CFLAGS += -DEXT_OPTIONS_MENU
+  CC_CHECK += -DBETTERCAMERA
+  CFLAGS += -DBETTERCAMERA
+endif
+
+ifeq ($(EXT_OPTIONS_MENU),1)
+  CC_CHECK += -DEXT_OPTIONS_MENU
+  CFLAGS += -DEXT_OPTIONS_MENU
 endif
 
 ASFLAGS := -I include -I $(BUILD_DIR) $(VERSION_ASFLAGS)

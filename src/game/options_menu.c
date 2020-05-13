@@ -167,9 +167,9 @@ static struct SubMenu menuControls = {
 /* main options menu definition */
 
 static struct Option optsMain[] = {
-	#ifdef BETTERCAMERA
+    #ifdef BETTERCAMERA
     { .type = OPT_SUBMENU, .label = menuStr[4], .nextMenu = &menuCamera, },
-	#endif
+    #endif
     { .type = OPT_SUBMENU, .label = menuStr[5], .nextMenu = &menuControls, },
 };
 
@@ -366,9 +366,9 @@ void optmenu_toggle(void) {
         play_sound(SOUND_MENU_MARIO_CASTLE_WARP2, gDefaultSoundArgs);
         #endif
         optmenu_open = 0;
-		#ifdef BETTERCAMERA
+        #ifdef BETTERCAMERA
         newcam_init_settings(); // load bettercam settings from config vars
-		#endif
+        #endif
         controller_reconfigure(); // rebind using new config values
         configfile_save(CONFIG_FILE);
     }

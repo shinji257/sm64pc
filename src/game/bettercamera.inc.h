@@ -133,7 +133,8 @@ void newcam_init(struct Camera *c, u8 dv)
     newcam_intendedmode = newcam_mode;
     newcam_modeflags = newcam_mode;
 }
-static f32 newcam_clamp(f32 value, f32 max, f32 min)
+
+static u8 newcam_clamp(u8 value, u8 min, u8 max)
 {
     if (value > max)
         value = max;
@@ -141,6 +142,7 @@ static f32 newcam_clamp(f32 value, f32 max, f32 min)
         value = min;
     return value;
 }
+
 ///These are the default settings for Puppycam. You may change them to change how they'll be set for first timers.
 void newcam_init_settings(void)
 {
@@ -208,7 +210,7 @@ static s16 newcam_approach_s16(s16 var, s16 val, s16 inc)
         return min(var - inc, val);
 }
 
-static u8 ivrt(u8 axis)
+static int ivrt(u8 axis)
 {
     if (axis == 0)
     {
@@ -354,8 +356,8 @@ static void newcam_rotate_button(void)
 
     if (newcam_mouse == 1)
     {
-        newcam_yaw += mouse_x * 16;
-        newcam_tilt += mouse_y * 16;
+        newcam_yaw += ivrt(0) * mouse_x * 16;
+        newcam_tilt += ivrt(1) * mouse_y * 16;
     }
 }
 
@@ -410,8 +412,6 @@ static void newcam_zoom_button(void)
 static void newcam_update_values(void)
 {//For tilt, this just limits it so it doesn't go further than 90 degrees either way. 90 degrees is actually 16384, but can sometimes lead to issues, so I just leave it shy of 90.
     u8 waterflag = 0;
-    newcam_sensitivityX = 75;
-    newcam_sensitivityY = 75;
     if (newcam_modeflags & NC_FLAG_XTURN)
         newcam_yaw += (ivrt(0)*(newcam_yaw_acc*(newcam_sensitivityX/10)));
     if (((newcam_tilt < 12000 && newcam_tilt_acc*ivrt(1) > 0) || (newcam_tilt > -12000 && newcam_tilt_acc*ivrt(1) < 0)) && newcam_modeflags & NC_FLAG_YTURN)

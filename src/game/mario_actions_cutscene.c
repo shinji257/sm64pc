@@ -30,7 +30,7 @@
 #include "thread6.h"
 #include "../../include/libc/stdlib.h"
 #include "../pc/configfile.h"
-#define CONFIG_FILE "sm64config.txt"
+#include "main.h"
 
 // TODO: put this elsewhere
 enum SaveOption { SAVE_OPT_SAVE_AND_CONTINUE = 1, SAVE_OPT_SAVE_AND_QUIT, SAVE_OPT_SAVE_EXIT_GAME, SAVE_OPT_CONTINUE_DONT_SAVE };

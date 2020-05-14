@@ -31,6 +31,8 @@ COMPILER ?= ido
 BETTERCAMERA ?= 0
 # Enable extended options menu by default
 EXT_OPTIONS_MENU ?= 1
+# Disable no drawing distance by default
+NODRAWINGDISTANCE ?= 0
 
 # Build for Emscripten/WebGL
 TARGET_WEB ?= 0
@@ -482,6 +484,12 @@ endif
 ifeq ($(EXT_OPTIONS_MENU),1)
   CC_CHECK += -DEXT_OPTIONS_MENU
   CFLAGS += -DEXT_OPTIONS_MENU
+endif
+
+# Check for no drawing distance option
+ifeq ($(NODRAWINGDISTANCE),1)
+CC_CHECK += -DNODRAWINGDISTANCE
+CFLAGS += -DNODRAWINGDISTANCE
 endif
 
 ASFLAGS := -I include -I $(BUILD_DIR) $(VERSION_ASFLAGS)

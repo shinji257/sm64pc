@@ -9,7 +9,9 @@
 #include "game/print.h"
 #include "game/segment2.h"
 #include "game/save_file.h"
+#ifdef BETTERCAMERA
 #include "game/bettercamera.h"
+#endif
 #include "game/mario_misc.h"
 #include "game/game_init.h"
 #include "game/ingame_menu.h"
@@ -193,7 +195,9 @@ static struct Option optsControls[] = {
 };
 
 static struct Option optsVideo[] = {
+#ifndef TARGET_SWITCH
     DEF_OPT_TOGGLE( optsVideoStr[0], &configFullscreen ),
+#endif
     DEF_OPT_CHOICE( optsVideoStr[1], &configFiltering, filterChoices ),
 };
 
